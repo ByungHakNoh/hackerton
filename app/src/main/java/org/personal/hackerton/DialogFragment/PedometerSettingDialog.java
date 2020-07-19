@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,28 +21,34 @@ public class PedometerSettingDialog extends DialogFragment {
     private static final String TAG = "BoardPillSettingDialog";
 
     private DialogListener dialogListener;
-    private int itemPosition;
+    private NumberPicker pedometerCountNP;
+    private String whichSetting;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        // 셀프인지 함께하기인지 확인하는 변수
+        if (getArguments() != null) whichSetting = getArguments().getString("whichSetting");
 
-        if (getArguments() != null) {
+        LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
+        View dialogView = layoutInflater.inflate(R.layout.dialog_pedometer_setting, null);
 
-            itemPosition = getArguments().getInt("itemPosition");
-        }
+        pedometerCountNP = dialogView.findViewById(R.id.pedometerCountNP);
+        // TODO : 나중에 간격 5 정도로 설정하기
+        pedometerCountNP.setMaxValue(200);
+        pedometerCountNP.setValue(100);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("선택 목록 삭제")
-                .setMessage("선택하신 목록을 삭제하시겠습니까?")
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setTitle("만보기 횟수 선택")
+                .setView(dialogView)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        dialogListener.applyDialogChoice(itemPosition);
+                        dialogListener.applyDialogChoice(whichSetting, pedometerCountNP.getValue());
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -66,6 +75,6 @@ public class PedometerSettingDialog extends DialogFragment {
 
     public interface DialogListener {
 
-        void applyDialogChoice(int itemPosition);
+        void applyDialogChoice(String whichSetting, int pedometerCount);
     }
 }
